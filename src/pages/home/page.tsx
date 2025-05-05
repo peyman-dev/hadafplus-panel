@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../core/redux/store'
 import { Table } from 'antd'
 import TableComponent from '../../components/Table/Table-component'
+import { HeaderSection } from '../../components/HeaderSection'
 
 const HomePage = () => {
     const dispatch = useDispatch<AppDispatch>()
@@ -17,13 +18,9 @@ const HomePage = () => {
 
     return (
         <main className='bg-zinc-100 h-dvh flex items-center justify-center'>
-            <section  className='md:max-w-6xl mx-auto container'>
-                <h1>
-                    Domain's management
-                </h1>
-                <div >
-                    <TableComponent />
-                </div>
+            <section className='md:max-w-6xl space-y-10 mx-auto container'>
+                <HeaderSection />
+                <TableComponent />
             </section>
         </main>
     )

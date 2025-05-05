@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import { Divider, Radio, Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
 import { useSelector } from 'react-redux';
-import { StatusType } from '../../core/types/types';
-import { ManageButton } from './manage-button';
-import { LinkRow } from './link-row';
+import { DomainType, StatusType } from '../../core/types/types';
+import { ManageButton } from './components/manage-button';
+import { LinkRow } from './components/link-row';
+import { CircleAlert, XCircle } from 'lucide-react';
+import { DomainsState } from '../../core/redux/reducers/domains-reducer';
 
-interface DataType {
-    key: React.Key;
-    name: string;
-    age: number;
-    address: string;
-}
 
 
 const RenderVerificationState = ({ state }: { state: StatusType }) => {
@@ -24,17 +20,32 @@ const RenderVerificationState = ({ state }: { state: StatusType }) => {
 
         case "rejected":
             return <div className='text-red-500'>Not verified</div>;
+
+        default:
+            return <div className='text-orange-500 flex items-center gap-1'>
+                <CircleAlert className='size-4'/>
+                <span>
+                    Missing
+                </span>
+            </div>;
     }
 }
 
 
 const ColTitle = ({ title }: { title: string }) => <span className='font-light'>{title}</span>
 
-const columns: TableColumnsType<DataType> = [
+const columns: TableColumnsType<DomainType> = [
     {
         title: <ColTitle title='Domain URL' />,
         dataIndex: 'domain',
-        render: (text: string) => <LinkRow link={text}/>
+        render: (text: string, data: DomainType) => typeof text === "string" ? <LinkRow status={{
+            isActive: data.isActive,
+            status: data.status
+        }} link={text} /> : <div className='flex items-center gap-2 text-red-500'> <XCircle className='size-4' />
+            <span>
+                Wrong domain entered
+            </span>
+        </div>
     },
     {
         title: <ColTitle title='Active' />,
@@ -58,62 +69,21 @@ const columns: TableColumnsType<DataType> = [
     }
 ];
 
-const data: DataType[] = [
-    {
-        key: '1',
-        name: 'John Brown',
-        age: 32,
-        address: 'New York No. 1 Lake Park',
-    },
-    {
-        key: '2',
-        name: 'Jim Green',
-        age: 42,
-        address: 'London No. 1 Lake Park',
-    },
-    {
-        key: '3',
-        name: 'Joe Black',
-        age: 32,
-        address: 'Sydney No. 1 Lake Park',
-    },
-    {
-        key: '4',
-        name: 'Disabled User',
-        age: 99,
-        address: 'Sydney No. 1 Lake Park',
-    },
-];
 
-// rowSelection object indicates the need for row selection
-const rowSelection: TableProps<DataType>['rowSelection'] = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-    },
-    getCheckboxProps: (record: DataType) => ({
-        disabled: record.name === 'Disabled User', // Column configuration not to be checked
-        name: record.name,
-    }),
-};
+
 
 const TableComponent: React.FC = () => {
     // const [selectionType, setSelectionType] = useState<'checkbox' | 'radio'>('checkbox');
     const store = useSelector((state: any) => state.domains)
 
-
+    console.log(store)
 
 
     return (
         <div>
-            {/* <Radio.Group onChange={(e) => setSelectionType(e.target.value)} value={selectionType}>
-                <Radio value="checkbox">Checkbox</Radio>
-                <Radio value="radio">radio</Radio>
-            </Radio.Group> */}
-            <Divider />
-            <Table<DataType>
-                rowSelection={{ ...rowSelection }}
+            <Table<DomainType>
                 columns={columns}
-                dataSource={store.domains}
+                dataSource={store.isUsingSort ? store.filteredDomains : store.domains}
                 pagination={{
                     pageSize: 8,
                 }}
