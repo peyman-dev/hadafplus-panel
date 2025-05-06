@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Divider, Radio, Table } from 'antd';
+import { Divider, message, Radio, Table } from 'antd';
 import type { TableColumnsType, TableProps } from 'antd';
 import { useSelector } from 'react-redux';
 import { DomainType, StatusType } from '../../core/types/types';
@@ -23,9 +23,9 @@ const RenderVerificationState = ({ state }: { state: StatusType }) => {
 
         default:
             return <div className='text-orange-500 flex items-center gap-1'>
-                <CircleAlert className='size-4'/>
+                <CircleAlert className='size-4' />
                 <span>
-                    Missing
+                    Not added !
                 </span>
             </div>;
     }
@@ -63,8 +63,8 @@ const columns: TableColumnsType<DomainType> = [
     },
     {
         title: "",
-        render: () => <div>
-            <ManageButton />
+        render: (_, data: DomainType) => <div>
+            <ManageButton domain={data} />
         </div>
     }
 ];
@@ -73,22 +73,23 @@ const columns: TableColumnsType<DomainType> = [
 
 
 const TableComponent: React.FC = () => {
-    // const [selectionType, setSelectionType] = useState<'checkbox' | 'radio'>('checkbox');
     const store = useSelector((state: any) => state.domains)
+    const [_, renderMessage] = message.useMessage()
 
-    console.log(store)
 
 
     return (
-        <div>
-            <Table<DomainType>
-                columns={columns}
-                dataSource={store.isUsingSort ? store.filteredDomains : store.domains}
-                pagination={{
-                    pageSize: 8,
-                }}
-            />
-        </div>
+        <>
+            <div>
+                <Table<DomainType>
+                    columns={columns}
+                    dataSource={store.isUsingFilters ? store.filteredDomains : store.domains}
+                    pagination={{
+                        pageSize: 8,
+                    }}
+                />
+            </div>
+        </>
     );
 };
 

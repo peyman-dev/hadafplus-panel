@@ -95,7 +95,7 @@ export function Loading({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 h-screen fixed bg-black/50 w-dvw z-50 text-white" role="status">
+    <div className="flex flex-col items-center justify-center gap-4 min-h-screen fixed bg-black/50 min-w-dvw z-50 text-white" role="status">
       {renderLoadingIndicator()}
       {message && variant !== 'skeleton' && (
         <p className="text-white text-sm font-medium">{message}</p>

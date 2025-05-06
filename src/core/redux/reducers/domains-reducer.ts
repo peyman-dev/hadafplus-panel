@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DomainType, OrderType } from "../../types/types";
-import { getDomains } from "../actions";
+import { DomainType, SortsType } from "../../types/types";
+import { getDomains, removeDomain } from "../actions";
 
 export interface DomainsState {
   domains: DomainType[];
   filteredDomains: DomainType[];
-  isUsingSort?: boolean;
+  isUsingFilters?: boolean;
   loading: boolean;
   error?: string;
 }
@@ -13,7 +13,7 @@ export interface DomainsState {
 const initialState: DomainsState = {
   domains: [],
   filteredDomains: [],
-  isUsingSort: false,
+  isUsingFilters: false,
   loading: true,
   error: undefined,
 };
@@ -22,13 +22,14 @@ export const domainsSlice = createSlice({
   name: "domains",
   initialState,
   reducers: {
-    orderItems(state, action: PayloadAction<OrderType>) {
+    // This function will filter the domains by status !
+    sortItems(state, action: PayloadAction<SortsType>) {
       const SELECTED_ORDER = action.payload;
 
       // Sorting Items
       switch (SELECTED_ORDER) {
         case "BY_ACTIVATION": {
-          state.isUsingSort = true;
+          state.isUsingFilters = true;
           state.filteredDomains = [...state.domains].sort(
             (a, b) => Number(b.isActive) - Number(a.isActive)
           );
@@ -36,7 +37,7 @@ export const domainsSlice = createSlice({
         }
 
         case "BY_ASC": {
-          state.isUsingSort = true;
+          state.isUsingFilters = true;
 
           state.filteredDomains = [...state.domains].sort((a, b) => {
             return a.domain.localeCompare(b.domain);
@@ -46,7 +47,7 @@ export const domainsSlice = createSlice({
         }
 
         case "BY_DESC": {
-          state.isUsingSort = true;
+          state.isUsingFilters = true;
 
           state.filteredDomains = [...state.domains].sort((a, b) => {
             return b.domain.localeCompare(a.domain);
@@ -56,7 +57,7 @@ export const domainsSlice = createSlice({
         }
 
         case "BY_STATUS": {
-          state.isUsingSort = true;
+          state.isUsingFilters = true;
 
           state.filteredDomains = [...state.domains].sort((a, b) => {
             const statusOrder = {
@@ -75,13 +76,30 @@ export const domainsSlice = createSlice({
         }
 
         case "DEFAULT_SORT": {
-          state.isUsingSort = false;
+          state.isUsingFilters = false;
+          state.filteredDomains = [...state.domains];
           break;
         }
 
         default: {
-          state.isUsingSort = false;
+          state.isUsingFilters = false;
+          state.filteredDomains = [...state.domains];
         }
+      }
+    },
+
+    // This function will filter the domains by Query
+    search: (state, action: PayloadAction<String>) => {
+      const keyword = String(action.payload);
+      if (keyword.length) {
+        state.isUsingFilters = true;
+        let filteredList = [...state.domains].filter((domain) =>
+          domain.domain.includes(keyword)
+        );
+        state.filteredDomains = filteredList;
+      } else {
+        state.isUsingFilters = false;
+        state.filteredDomains = state.domains;
       }
     },
   },
@@ -102,5 +120,5 @@ export const domainsSlice = createSlice({
   },
 });
 
-export const { orderItems } = domainsSlice.actions;
+export const { sortItems, search } = domainsSlice.actions;
 export default domainsSlice.reducer;
